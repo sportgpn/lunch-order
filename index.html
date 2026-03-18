@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ обеда</title>
+    <!-- Подключаем шрифт Google Fonts для красоты -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Подключаем Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Подключаем CSS стили -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .card-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .menu-item {
+            position: relative;
+        }
+
+        .menu-item input[type="radio"] {
+            display: none;
+        }
+
+        .menu-item label {
+            display: block;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0;
+            text-transform: none;
+            letter-spacing: normal;
+            font-weight: normal;
+        }
+
+        .menu-item input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .menu-item label:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .menu-item i {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+
+        .menu-item input[type="radio"]:checked + label i {
+            color: white;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loader i {
+            font-size: 30px;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .card-body {
+                padding: 20px;
+            }
+            
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1><i class="fas fa-utensils"></i> Заказ обеда</h1>
+                <p>Выберите блюдо на сегодня</p>
+            </div>
+            
+            <div class="card-body">
+                <!-- Блок для сообщений об успехе/ошибке -->
+                <div id="alert" class="alert"></div>
+                
+                <!-- Индикатор загрузки -->
+                <div id="loader" class="loader">
+                    <i class="fas fa-circle-notch"></i>
+                </div>
+                
+                <!-- Форма заказа -->
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label for="employee"><i class="fas fa-user"></i> Ваше имя</label>
+                        <input type="text" id="employee" name="employee" required placeholder="Введите ваше имя">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-utensils"></i> Выберите блюдо</label>
+                        <div class="menu-items">
+                            <div class="menu-item">
+                                <input type="radio" id="dish1" name="dish" value="Борщ с пампушками" required>
+                                <label for="dish1">
+                                    <i class="fas fa-utensil-spoon"></i>
+                                    Борщ с пампушками
+                                </label>
+                            </div>
+                            
+                            <div class="menu-item">
+                                <input type="radio" id="dish2" name="dish" value="Куриный суп с лапшой">
+                                <label for="dish2">
+                                    <i class="fas fa-utensil-spoon"></i>
+                                    Куриный суп с лапшой
+                                </label>
+                            </div>
+                            
+                            <div class="menu-item">
+                                <input type="radio" id="dish3" name="dish" value="Пюре с котлетой">
+                                <label for="dish3">
+                                    <i class="fas fa-drumstick-bite"></i>
+                                    Пюре с котлетой
+                                </label>
+                            </div>
+                            
+                            <div class="menu-item">
+                                <input type="radio" id="dish4" name="dish" value="Гречка с курицей">
+                                <label for="dish4">
+                                    <i class="fas fa-drumstick-bite"></i>
+                                    Гречка с курицей
+                                </label>
+                            </div>
+                            
+                            <div class="menu-item">
+                                <input type="radio" id="dish5" name="dish" value="Овощное рагу">
+                                <label for="dish5">
+                                    <i class="fas fa-carrot"></i>
+                                    Овощное рагу
+                                </label>
+                            </div>
+                            
+                            <div class="menu-item">
+                                <input type="radio" id="dish6" name="dish" value="Плов">
+                                <label for="dish6">
+                                    <i class="fas fa-utensils"></i>
+                                    Плов
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comment"><i class="fas fa-comment"></i> Комментарий (пожелания, аллергии)</label>
+                        <textarea id="comment" name="comment" placeholder="Например: без лука, острое, etc..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-check"></i> Заказать обед
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Заказы принимаются до 11:00</p>
+        </div>
+    </div>
+
+    <!-- JavaScript код -->
+    <script>
+        // ЗАМЕНИТЕ ЭТО НА ВАШ URL ИЗ GOOGLE APPS SCRIPT
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/XXXXXXXXXXXXX/exec';
+        
+        const form = document.getElementById('orderForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loader = document.getElementById('loader');
+        const alertBox = document.getElementById('alert');
+        
+        // Функция показа сообщения
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            // Автоматически скрываем через 5 секунд
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Функция для отправки данных
+        async function submitOrder(data) {
+            try {
+                // Показываем загрузку
+                loader.style.display = 'block';
+                submitBtn.disabled = true;
+                
+                // Отправляем POST запрос к Google Apps Script
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Важно! Google Apps Script требует no-cors
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                // Из-за no-cors мы не можем прочитать ответ
+                // Поэтому просто показываем успех
+                showAlert('Заказ успешно отправлен! Приятного аппетита!', 'success');
+                form.reset(); // Очищаем форму
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showAlert('Произошла ошибка. Пожалуйста, попробуйте еще раз или напишите вручную.', 'error');
+            } finally {
+                // Скрываем загрузку
+                loader.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Обработчик отправки формы
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // Отменяем стандартную отправку формы
+            
+            // Собираем данные из формы
+            const formData = new FormData(form);
+            const data = {
+                employee: formData.get('employee'),
+                dish: formData.get('dish'),
+                comment: formData.get('comment') || ''
+            };
+            
+            // Простая валидация
+            if (!data.employee || !data.dish) {
+                showAlert('Пожалуйста, заполните все обязательные поля', 'error');
+                return;
+            }
+            
+            // Отправляем данные
+            submitOrder(data);
+        });
+    </script>
+</body>
+</html>
