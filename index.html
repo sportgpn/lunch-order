@@ -354,8 +354,8 @@
 
     <!-- JavaScript код -->
     <script>
-        // ЗАМЕНИТЕ ЭТО НА ВАШ URL ИЗ GOOGLE APPS SCRIPT
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyMHW9_SEBmSwK-joHUlFXVXir1mDeO3LMXw2AOnta7Qipdn1gmqTzgh-Q66Vfb7wqtQ/exec ';
+        // URL вашего Google Apps Script
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyMHW9_SEBmSwK-joHUlFXVXir1mDeO3LMXw2AOnta7Qipdn1gmqTzgh-Q66Vfb7wqtQ/exec';
         
         const form = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -419,6 +419,7 @@
             // Сохраняем только если есть хоть какие-то данные
             if (formData.fullname || formData.facility || formData.phone || formData.orderDate) {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+                console.log('Данные сохранены:', formData); // Для отладки
             }
         }
         
@@ -441,6 +442,8 @@
                             orderDateSelect.value = formData.orderDate;
                         }
                     }
+                    
+                    console.log('Данные загружены:', formData); // Для отладки
                 } catch (e) {
                     console.error('Ошибка при загрузке данных:', e);
                 }
@@ -473,8 +476,10 @@
                 loader.style.display = 'block';
                 submitBtn.disabled = true;
                 
+                console.log('Отправляем данные:', data); // Для отладки
+                
                 // Отправляем POST запрос к Google Apps Script
-                await fetch(APPS_SCRIPT_URL, {
+                const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
