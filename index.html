@@ -75,8 +75,7 @@
         }
 
         .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -87,15 +86,10 @@
         }
 
         .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-group input[type="date"] {
-            font-family: 'Roboto', sans-serif;
         }
 
         .order-summary {
@@ -136,56 +130,27 @@
             font-weight: 500;
         }
 
-        .confirmations {
-            margin: 25px 0;
-        }
-
-        .confirmation-item {
-            margin-bottom: 15px;
-        }
-
-        .confirmation-item input[type="radio"] {
-            display: none;
-        }
-
-        .confirmation-item label {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 15px;
+        .confirmation-box {
             background: #f8f9fa;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 0;
-            text-transform: none;
-            letter-spacing: normal;
-            font-weight: normal;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .confirmation-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #333;
             font-size: 14px;
             line-height: 1.5;
+            margin-bottom: 15px;
         }
 
-        .confirmation-item input[type="radio"]:checked + label {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
-            color: white;
-        }
-
-        .confirmation-item label:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-        }
-
-        .confirmation-item i {
-            font-size: 18px;
+        .confirmation-text i {
+            font-size: 20px;
             color: #667eea;
-            margin-top: 2px;
-        }
-
-        .confirmation-item input[type="radio"]:checked + label i {
-            color: white;
         }
 
         .btn-submit {
@@ -199,7 +164,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
         }
 
         .btn-submit:hover {
@@ -232,12 +196,6 @@
             border: 1px solid #f5c6cb;
         }
 
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-        }
-
         .loader {
             display: none;
             text-align: center;
@@ -262,23 +220,6 @@
             font-size: 14px;
         }
 
-        .info-box {
-            background: #e3f2fd;
-            border: 1px solid #90caf9;
-            color: #0d47a1;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .info-box i {
-            font-size: 20px;
-        }
-
         @media (max-width: 480px) {
             .card-body {
                 padding: 20px;
@@ -291,21 +232,12 @@
         <div class="card">
             <div class="card-header">
                 <h1><i class="fas fa-utensils"></i> Заказ обеда</h1>
-                <p>Оформление заказа на завтра</p>
+                <p>Оформление заказа на питание</p>
             </div>
             
             <div class="card-body">
                 <!-- Блок для сообщений -->
                 <div id="alert" class="alert"></div>
-                
-                <!-- Информационный блок о времени заказа -->
-                <div class="info-box">
-                    <i class="fas fa-clock"></i>
-                    <div>
-                        <strong>Важно!</strong> Заказы на обед принимаются до 13:00 сегодня на завтра. 
-                        После 13:00 заказать обед на завтрашний день невозможно.
-                    </div>
-                </div>
                 
                 <!-- Индикатор загрузки -->
                 <div id="loader" class="loader">
@@ -331,8 +263,9 @@
                     
                     <div class="form-group">
                         <label for="orderDate"><i class="fas fa-calendar-alt"></i> Дата заказа *</label>
-                        <input type="date" id="orderDate" name="orderDate" required readonly>
-                        <small style="color: #666; display: block; margin-top: 5px;">Дата зафиксирована на завтра</small>
+                        <select id="orderDate" name="orderDate" required>
+                            <option value="">Выберите дату</option>
+                        </select>
                     </div>
 
                     <!-- Сводка заказа -->
@@ -346,77 +279,88 @@
                             <span class="label">Количество:</span>
                             <span class="value">1 порция</span>
                         </div>
-                        <div class="order-summary-item">
-                            <span class="label">Стоимость:</span>
-                            <span class="value">Бесплатно (включено в питание)</span>
-                        </div>
                     </div>
                     
-                    <!-- Блок подтверждений (radio вместо checkbox) -->
-                    <div class="confirmations">
-                        <div class="confirmation-item">
-                            <input type="radio" id="confirm1" name="confirmation" value="rules" required>
-                            <label for="confirm1">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Настоящим подтверждаю, что я ознакомлен с правилами оформления заказа.<br>
-                                <small style="opacity: 0.8;">Заказы на обед на сегодня не принимаются. Для заказа на завтра, пожалуйста, оформите его сегодня до 13:00.</small></span>
-                            </label>
-                        </div>
-                        
-                        <div class="confirmation-item">
-                            <input type="radio" id="confirm2" name="confirmation" value="quantity" required>
-                            <label for="confirm2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Настоящим подтверждаю, что я заказываю обед себе в количестве - 1 шт.<br>
-                                <small style="opacity: 0.8;">Заказ оформляется только на одного человека.</small></span>
-                            </label>
+                    <!-- Простое подтверждение как в Google Forms -->
+                    <div class="confirmation-box">
+                        <div class="confirmation-text">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Нажимая кнопку "Заказать обед", вы подтверждаете, что ознакомлены с правилами заказа и заказываете 1 порцию.</span>
                         </div>
                     </div>
                     
                     <button type="submit" class="btn-submit" id="submitBtn">
-                        <i class="fas fa-check"></i> Подтвердить заказ
+                        <i class="fas fa-check"></i> Заказать обед
                     </button>
                 </form>
             </div>
         </div>
         
         <div class="footer">
-            <p>Заказы принимаются до 13:00 на следующий день</p>
+            <p>Заказы принимаются на выбранную дату</p>
         </div>
     </div>
 
     <!-- JavaScript код -->
     <script>
         // ЗАМЕНИТЕ ЭТО НА ВАШ URL ИЗ GOOGLE APPS SCRIPT
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyMHW9_SEBmSwK-joHUlFXVXir1mDeO3LMXw2AOnta7Qipdn1gmqTzgh-Q66Vfb7wqtQ/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/XXXXXXXXXXXXX/exec';
         
         const form = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
         const loader = document.getElementById('loader');
         const alertBox = document.getElementById('alert');
-        const orderDateInput = document.getElementById('orderDate');
+        const orderDateSelect = document.getElementById('orderDate');
         
-        // Устанавливаем дату на завтра при загрузке страницы
-        function setTomorrowDate() {
-            const tomorrow = new Date();
+        // Заполняем select с датами (сегодня, завтра, послезавтра)
+        function populateDates() {
+            const today = new Date();
+            const dates = [];
+            
+            // Сегодня
+            dates.push({
+                date: new Date(today),
+                label: 'Сегодня'
+            });
+            
+            // Завтра
+            const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
+            dates.push({
+                date: new Date(tomorrow),
+                label: 'Завтра'
+            });
             
-            // Форматируем дату в YYYY-MM-DD
-            const year = tomorrow.getFullYear();
-            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-            const day = String(tomorrow.getDate()).padStart(2, '0');
+            // Послезавтра
+            const afterTomorrow = new Date(today);
+            afterTomorrow.setDate(afterTomorrow.getDate() + 2);
+            dates.push({
+                date: new Date(afterTomorrow),
+                label: 'Послезавтра'
+            });
             
-            orderDateInput.value = `${year}-${month}-${day}`;
-        }
-        
-        // Проверка, можно ли заказывать (до 13:00)
-        function canOrder() {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            
-            // Проверяем, что текущее время до 13:00
-            return hours < 13 || (hours === 13 && minutes === 0);
+            // Форматируем и добавляем в select
+            dates.forEach((item, index) => {
+                const year = item.date.getFullYear();
+                const month = String(item.date.getMonth() + 1).padStart(2, '0');
+                const day = String(item.date.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                
+                // Для отображения добавляем день недели
+                const weekdays = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+                const weekday = weekdays[item.date.getDay()];
+                
+                const option = document.createElement('option');
+                option.value = dateStr;
+                
+                if (index === 0) {
+                    option.textContent = `${item.label} (${weekday}) - ${dateStr}`;
+                } else {
+                    option.textContent = `${item.label} (${weekday}) - ${dateStr}`;
+                }
+                
+                orderDateSelect.appendChild(option);
+            });
         }
         
         // Функция показа сообщения
@@ -450,7 +394,6 @@
                 
                 showAlert('Заказ успешно отправлен! Приятного аппетита!', 'success');
                 form.reset(); // Очищаем форму
-                setTomorrowDate(); // Восстанавливаем дату на завтра
                 
             } catch (error) {
                 console.error('Ошибка:', error);
@@ -466,25 +409,17 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault(); // Отменяем стандартную отправку формы
             
-            // Проверяем время заказа
-            if (!canOrder()) {
-                showAlert('Время приема заказов истекло. Заказы принимаются только до 13:00 на следующий день.', 'error');
-                return;
-            }
-            
             // Собираем данные из формы
             const formData = new FormData(form);
-            const confirmation = formData.get('confirmation');
             
             const data = {
                 fullname: formData.get('fullname'),
                 facility: formData.get('facility'),
                 phone: formData.get('phone'),
                 orderDate: formData.get('orderDate'),
-                confirmation: confirmation === 'rules' ? 'Ознакомлен с правилами' : 'Подтверждаю количество',
-                // Добавляем фиксированные поля
                 meal: 'Комплексный обед (суп + салат + горячее)',
-                quantity: 1
+                quantity: 1,
+                confirmation: 'Подтверждено'
             };
             
             // Валидация
@@ -493,12 +428,7 @@
                 return;
             }
             
-            if (!confirmation) {
-                showAlert('Пожалуйста, подтвердите ознакомление с правилами и количество', 'error');
-                return;
-            }
-            
-            // Простая валидация телефона (можно улучшить)
+            // Простая валидация телефона
             const phoneRegex = /^[+]?[\d\s()-]{10,}$/;
             if (!phoneRegex.test(data.phone)) {
                 showAlert('Пожалуйста, введите корректный номер телефона', 'error');
@@ -509,13 +439,8 @@
             submitOrder(data);
         });
         
-        // Устанавливаем дату на завтра при загрузке
-        setTomorrowDate();
-        
-        // Проверяем время при загрузке
-        if (!canOrder()) {
-            showAlert('Внимание! Время приема заказов истекло. Заказы на завтра больше не принимаются.', 'warning');
-        }
+        // Заполняем даты при загрузке
+        populateDates();
     </script>
 </body>
 </html>
