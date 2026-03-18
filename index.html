@@ -94,61 +94,97 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
+        .form-group input[type="date"] {
+            font-family: 'Roboto', sans-serif;
         }
 
-        .menu-items {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 10px;
+        .order-summary {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 2px solid #667eea20;
         }
 
-        .menu-item {
-            position: relative;
+        .order-summary h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .menu-item input[type="radio"] {
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #667eea20;
+        }
+
+        .order-summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-summary-item .label {
+            color: #666;
+            font-weight: 400;
+        }
+
+        .order-summary-item .value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .confirmations {
+            margin: 25px 0;
+        }
+
+        .confirmation-item {
+            margin-bottom: 15px;
+        }
+
+        .confirmation-item input[type="radio"] {
             display: none;
         }
 
-        .menu-item label {
-            display: block;
+        .confirmation-item label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
             padding: 15px;
             background: #f8f9fa;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
-            text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             margin: 0;
             text-transform: none;
             letter-spacing: normal;
             font-weight: normal;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        .menu-item input[type="radio"]:checked + label {
+        .confirmation-item input[type="radio"]:checked + label {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-color: #667eea;
             color: white;
         }
 
-        .menu-item label:hover {
+        .confirmation-item label:hover {
             border-color: #667eea;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
         }
 
-        .menu-item i {
-            display: block;
-            font-size: 24px;
-            margin-bottom: 8px;
+        .confirmation-item i {
+            font-size: 18px;
             color: #667eea;
+            margin-top: 2px;
         }
 
-        .menu-item input[type="radio"]:checked + label i {
+        .confirmation-item input[type="radio"]:checked + label i {
             color: white;
         }
 
@@ -196,6 +232,12 @@
             border: 1px solid #f5c6cb;
         }
 
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
         .loader {
             display: none;
             text-align: center;
@@ -220,13 +262,26 @@
             font-size: 14px;
         }
 
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #0d47a1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box i {
+            font-size: 20px;
+        }
+
         @media (max-width: 480px) {
             .card-body {
                 padding: 20px;
-            }
-            
-            .menu-items {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -236,12 +291,21 @@
         <div class="card">
             <div class="card-header">
                 <h1><i class="fas fa-utensils"></i> Заказ обеда</h1>
-                <p>Выберите блюдо на сегодня</p>
+                <p>Оформление заказа на завтра</p>
             </div>
             
             <div class="card-body">
-                <!-- Блок для сообщений об успехе/ошибке -->
+                <!-- Блок для сообщений -->
                 <div id="alert" class="alert"></div>
+                
+                <!-- Информационный блок о времени заказа -->
+                <div class="info-box">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <strong>Важно!</strong> Заказы на обед принимаются до 13:00 сегодня на завтра. 
+                        После 13:00 заказать обед на завтрашний день невозможно.
+                    </div>
+                </div>
                 
                 <!-- Индикатор загрузки -->
                 <div id="loader" class="loader">
@@ -251,89 +315,109 @@
                 <!-- Форма заказа -->
                 <form id="orderForm">
                     <div class="form-group">
-                        <label for="employee"><i class="fas fa-user"></i> Ваше имя</label>
-                        <input type="text" id="employee" name="employee" required placeholder="Введите ваше имя">
+                        <label for="fullname"><i class="fas fa-user"></i> ФИО *</label>
+                        <input type="text" id="fullname" name="fullname" required placeholder="Введите ваше полное имя">
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-utensils"></i> Выберите блюдо</label>
-                        <div class="menu-items">
-                            <div class="menu-item">
-                                <input type="radio" id="dish1" name="dish" value="Борщ с пампушками" required>
-                                <label for="dish1">
-                                    <i class="fas fa-utensil-spoon"></i>
-                                    Борщ с пампушками
-                                </label>
-                            </div>
-                            
-                            <div class="menu-item">
-                                <input type="radio" id="dish2" name="dish" value="Куриный суп с лапшой">
-                                <label for="dish2">
-                                    <i class="fas fa-utensil-spoon"></i>
-                                    Куриный суп с лапшой
-                                </label>
-                            </div>
-                            
-                            <div class="menu-item">
-                                <input type="radio" id="dish3" name="dish" value="Пюре с котлетой">
-                                <label for="dish3">
-                                    <i class="fas fa-drumstick-bite"></i>
-                                    Пюре с котлетой
-                                </label>
-                            </div>
-                            
-                            <div class="menu-item">
-                                <input type="radio" id="dish4" name="dish" value="Гречка с курицей">
-                                <label for="dish4">
-                                    <i class="fas fa-drumstick-bite"></i>
-                                    Гречка с курицей
-                                </label>
-                            </div>
-                            
-                            <div class="menu-item">
-                                <input type="radio" id="dish5" name="dish" value="Овощное рагу">
-                                <label for="dish5">
-                                    <i class="fas fa-carrot"></i>
-                                    Овощное рагу
-                                </label>
-                            </div>
-                            
-                            <div class="menu-item">
-                                <input type="radio" id="dish6" name="dish" value="Плов">
-                                <label for="dish6">
-                                    <i class="fas fa-utensils"></i>
-                                    Плов
-                                </label>
-                            </div>
+                        <label for="facility"><i class="fas fa-building"></i> Название объекта *</label>
+                        <input type="text" id="facility" name="facility" required placeholder="Где вы будете питаться">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone"><i class="fas fa-phone"></i> Телефон *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="+7 (999) 123-45-67">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="orderDate"><i class="fas fa-calendar-alt"></i> Дата заказа *</label>
+                        <input type="date" id="orderDate" name="orderDate" required readonly>
+                        <small style="color: #666; display: block; margin-top: 5px;">Дата зафиксирована на завтра</small>
+                    </div>
+
+                    <!-- Сводка заказа -->
+                    <div class="order-summary">
+                        <h3><i class="fas fa-shopping-basket"></i> Ваш заказ</h3>
+                        <div class="order-summary-item">
+                            <span class="label">Обед:</span>
+                            <span class="value">Комплексный обед (суп + салат + горячее)</span>
+                        </div>
+                        <div class="order-summary-item">
+                            <span class="label">Количество:</span>
+                            <span class="value">1 порция</span>
+                        </div>
+                        <div class="order-summary-item">
+                            <span class="label">Стоимость:</span>
+                            <span class="value">Бесплатно (включено в питание)</span>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="comment"><i class="fas fa-comment"></i> Комментарий (пожелания, аллергии)</label>
-                        <textarea id="comment" name="comment" placeholder="Например: без лука, острое, etc..."></textarea>
+                    <!-- Блок подтверждений (radio вместо checkbox) -->
+                    <div class="confirmations">
+                        <div class="confirmation-item">
+                            <input type="radio" id="confirm1" name="confirmation" value="rules" required>
+                            <label for="confirm1">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Настоящим подтверждаю, что я ознакомлен с правилами оформления заказа.<br>
+                                <small style="opacity: 0.8;">Заказы на обед на сегодня не принимаются. Для заказа на завтра, пожалуйста, оформите его сегодня до 13:00.</small></span>
+                            </label>
+                        </div>
+                        
+                        <div class="confirmation-item">
+                            <input type="radio" id="confirm2" name="confirmation" value="quantity" required>
+                            <label for="confirm2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Настоящим подтверждаю, что я заказываю обед себе в количестве - 1 шт.<br>
+                                <small style="opacity: 0.8;">Заказ оформляется только на одного человека.</small></span>
+                            </label>
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn-submit" id="submitBtn">
-                        <i class="fas fa-check"></i> Заказать обед
+                        <i class="fas fa-check"></i> Подтвердить заказ
                     </button>
                 </form>
             </div>
         </div>
         
         <div class="footer">
-            <p>Заказы принимаются до 11:00</p>
+            <p>Заказы принимаются до 13:00 на следующий день</p>
         </div>
     </div>
 
     <!-- JavaScript код -->
     <script>
         // ЗАМЕНИТЕ ЭТО НА ВАШ URL ИЗ GOOGLE APPS SCRIPT
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyMHW9_SEBmSwK-joHUlFXVXir1mDeO3LMXw2AOnta7Qipdn1gmqTzgh-Q66Vfb7wqtQ/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/XXXXXXXXXXXXX/exec';
         
         const form = document.getElementById('orderForm');
         const submitBtn = document.getElementById('submitBtn');
         const loader = document.getElementById('loader');
         const alertBox = document.getElementById('alert');
+        const orderDateInput = document.getElementById('orderDate');
+        
+        // Устанавливаем дату на завтра при загрузке страницы
+        function setTomorrowDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            // Форматируем дату в YYYY-MM-DD
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            
+            orderDateInput.value = `${year}-${month}-${day}`;
+        }
+        
+        // Проверка, можно ли заказывать (до 13:00)
+        function canOrder() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            
+            // Проверяем, что текущее время до 13:00
+            return hours < 13 || (hours === 13 && minutes === 0);
+        }
         
         // Функция показа сообщения
         function showAlert(message, type) {
@@ -357,17 +441,16 @@
                 // Отправляем POST запрос к Google Apps Script
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Важно! Google Apps Script требует no-cors
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(data)
                 });
                 
-                // Из-за no-cors мы не можем прочитать ответ
-                // Поэтому просто показываем успех
                 showAlert('Заказ успешно отправлен! Приятного аппетита!', 'success');
                 form.reset(); // Очищаем форму
+                setTomorrowDate(); // Восстанавливаем дату на завтра
                 
             } catch (error) {
                 console.error('Ошибка:', error);
@@ -383,23 +466,56 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault(); // Отменяем стандартную отправку формы
             
+            // Проверяем время заказа
+            if (!canOrder()) {
+                showAlert('Время приема заказов истекло. Заказы принимаются только до 13:00 на следующий день.', 'error');
+                return;
+            }
+            
             // Собираем данные из формы
             const formData = new FormData(form);
+            const confirmation = formData.get('confirmation');
+            
             const data = {
-                employee: formData.get('employee'),
-                dish: formData.get('dish'),
-                comment: formData.get('comment') || ''
+                fullname: formData.get('fullname'),
+                facility: formData.get('facility'),
+                phone: formData.get('phone'),
+                orderDate: formData.get('orderDate'),
+                confirmation: confirmation === 'rules' ? 'Ознакомлен с правилами' : 'Подтверждаю количество',
+                // Добавляем фиксированные поля
+                meal: 'Комплексный обед (суп + салат + горячее)',
+                quantity: 1
             };
             
-            // Простая валидация
-            if (!data.employee || !data.dish) {
+            // Валидация
+            if (!data.fullname || !data.facility || !data.phone || !data.orderDate) {
                 showAlert('Пожалуйста, заполните все обязательные поля', 'error');
+                return;
+            }
+            
+            if (!confirmation) {
+                showAlert('Пожалуйста, подтвердите ознакомление с правилами и количество', 'error');
+                return;
+            }
+            
+            // Простая валидация телефона (можно улучшить)
+            const phoneRegex = /^[+]?[\d\s()-]{10,}$/;
+            if (!phoneRegex.test(data.phone)) {
+                showAlert('Пожалуйста, введите корректный номер телефона', 'error');
                 return;
             }
             
             // Отправляем данные
             submitOrder(data);
         });
+        
+        // Устанавливаем дату на завтра при загрузке
+        setTomorrowDate();
+        
+        // Проверяем время при загрузке
+        if (!canOrder()) {
+            showAlert('Внимание! Время приема заказов истекло. Заказы на завтра больше не принимаются.', 'warning');
+        }
     </script>
 </body>
 </html>
