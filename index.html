@@ -354,208 +354,214 @@
 
     <!-- JavaScript код -->
     <script>
-        // URL вашего Google Apps Script
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7RCAM_6gJSr9vbBXDKdw4qEX6c80UdBG1FAlclMHl-rW__xsBX4-Zg2jLAeT5-N4Q/exec';
+    // JavaScript код
+<script>
+    // URL вашего Google Apps Script
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyMHW9_SEBmSwK-joHUlFXVXir1mDeO3LMXw2AOnta7Qipdn1gmqTzgh-Q66Vfb7wqtQ/exec';
+    
+    const form = document.getElementById('orderForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loader = document.getElementById('loader');
+    const alertBox = document.getElementById('alert');
+    const orderDateSelect = document.getElementById('orderDate');
+    const clearDataBtn = document.getElementById('clearDataBtn');
+    
+    // Ключ для localStorage
+    const STORAGE_KEY = 'lunchOrderData';
+    
+    // Заполняем select с датами (завтра и послезавтра)
+    function populateDates() {
+        const today = new Date();
+        const dates = [];
         
-        const form = document.getElementById('orderForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const loader = document.getElementById('loader');
-        const alertBox = document.getElementById('alert');
-        const orderDateSelect = document.getElementById('orderDate');
-        const clearDataBtn = document.getElementById('clearDataBtn');
+        // Завтра
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dates.push({
+            date: new Date(tomorrow),
+            label: 'Завтра'
+        });
         
-        // Ключ для localStorage
-        const STORAGE_KEY = 'lunchOrderData';
+        // Послезавтра
+        const afterTomorrow = new Date(today);
+        afterTomorrow.setDate(afterTomorrow.getDate() + 2);
+        dates.push({
+            date: new Date(afterTomorrow),
+            label: 'Послезавтра'
+        });
         
-        // Заполняем select с датами (завтра и послезавтра)
-        function populateDates() {
-            const today = new Date();
-            const dates = [];
+        // Форматируем и добавляем в select
+        dates.forEach((item) => {
+            const year = item.date.getFullYear();
+            const month = String(item.date.getMonth() + 1).padStart(2, '0');
+            const day = String(item.date.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
             
-            // Завтра
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            dates.push({
-                date: new Date(tomorrow),
-                label: 'Завтра'
-            });
+            // Добавляем день недели
+            const weekdays = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            const weekday = weekdays[item.date.getDay()];
             
-            // Послезавтра
-            const afterTomorrow = new Date(today);
-            afterTomorrow.setDate(afterTomorrow.getDate() + 2);
-            dates.push({
-                date: new Date(afterTomorrow),
-                label: 'Послезавтра'
-            });
+            const option = document.createElement('option');
+            option.value = dateStr;
+            option.textContent = `${item.label} (${weekday}) - ${dateStr}`;
             
-            // Форматируем и добавляем в select
-            dates.forEach((item) => {
-                const year = item.date.getFullYear();
-                const month = String(item.date.getMonth() + 1).padStart(2, '0');
-                const day = String(item.date.getDate()).padStart(2, '0');
-                const dateStr = `${year}-${month}-${day}`;
+            orderDateSelect.appendChild(option);
+        });
+    }
+    
+    // Сохраняем данные формы в localStorage
+    function saveFormData() {
+        const formData = {
+            fullname: document.getElementById('fullname').value,
+            facility: document.getElementById('facility').value,
+            phone: document.getElementById('phone').value,
+            orderDate: document.getElementById('orderDate').value
+        };
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+        console.log('✅ Данные сохранены:', formData);
+    }
+    
+    // Загружаем данные из localStorage
+    function loadFormData() {
+        const savedData = localStorage.getItem(STORAGE_KEY);
+        
+        if (savedData) {
+            try {
+                const formData = JSON.parse(savedData);
                 
-                // Добавляем день недели
-                const weekdays = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
-                const weekday = weekdays[item.date.getDay()];
+                document.getElementById('fullname').value = formData.fullname || '';
+                document.getElementById('facility').value = formData.facility || '';
+                document.getElementById('phone').value = formData.phone || '';
                 
-                const option = document.createElement('option');
-                option.value = dateStr;
-                option.textContent = `${item.label} (${weekday}) - ${dateStr}`;
-                
-                orderDateSelect.appendChild(option);
-            });
-        }
-        
-        // Сохраняем данные формы в localStorage
-        function saveFormData() {
-            const formData = {
-                fullname: document.getElementById('fullname').value,
-                facility: document.getElementById('facility').value,
-                phone: document.getElementById('phone').value,
-                orderDate: document.getElementById('orderDate').value
-            };
-            
-            // Сохраняем только если есть хоть какие-то данные
-            if (formData.fullname || formData.facility || formData.phone || formData.orderDate) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-                console.log('Данные сохранены:', formData); // Для отладки
-            }
-        }
-        
-        // Загружаем данные из localStorage
-        function loadFormData() {
-            const savedData = localStorage.getItem(STORAGE_KEY);
-            
-            if (savedData) {
-                try {
-                    const formData = JSON.parse(savedData);
-                    
-                    document.getElementById('fullname').value = formData.fullname || '';
-                    document.getElementById('facility').value = formData.facility || '';
-                    document.getElementById('phone').value = formData.phone || '';
-                    
-                    // Устанавливаем выбранную дату, если она существует в options
-                    if (formData.orderDate) {
+                // Устанавливаем выбранную дату, если она существует в options
+                if (formData.orderDate) {
+                    // Небольшая задержка, чтобы select успел заполниться
+                    setTimeout(() => {
                         const optionExists = Array.from(orderDateSelect.options).some(opt => opt.value === formData.orderDate);
                         if (optionExists) {
                             orderDateSelect.value = formData.orderDate;
                         }
-                    }
-                    
-                    console.log('Данные загружены:', formData); // Для отладки
-                } catch (e) {
-                    console.error('Ошибка при загрузке данных:', e);
+                    }, 100);
                 }
+                
+                console.log('✅ Данные загружены:', formData);
+            } catch (e) {
+                console.error('❌ Ошибка при загрузке данных:', e);
             }
+        } else {
+            console.log('ℹ️ Нет сохраненных данных');
         }
+    }
+    
+    // Очищаем сохраненные данные
+    function clearSavedData() {
+        localStorage.removeItem(STORAGE_KEY);
+        form.reset();
+        showAlert('Сохраненные данные очищены', 'success');
+        console.log('🗑️ Данные очищены');
+    }
+    
+    // Функция показа сообщения
+    function showAlert(message, type) {
+        alertBox.textContent = message;
+        alertBox.className = `alert alert-${type}`;
+        alertBox.style.display = 'block';
         
-        // Очищаем сохраненные данные
-        function clearSavedData() {
-            localStorage.removeItem(STORAGE_KEY);
+        // Автоматически скрываем через 5 секунд
+        setTimeout(() => {
+            alertBox.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Функция для отправки данных
+    async function submitOrder(data) {
+        try {
+            // Показываем загрузку
+            loader.style.display = 'block';
+            submitBtn.disabled = true;
+            
+            console.log('📤 Отправляем данные:', data);
+            
+            // Отправляем POST запрос к Google Apps Script
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            showAlert('Заказ успешно отправлен! Приятного аппетита!', 'success');
+            
+            // Очищаем форму и сохраненные данные после успешной отправки
             form.reset();
-            showAlert('Сохраненные данные очищены', 'success');
+            localStorage.removeItem(STORAGE_KEY);
+            console.log('✅ Форма очищена после отправки');
+            
+        } catch (error) {
+            console.error('❌ Ошибка:', error);
+            showAlert('Произошла ошибка. Пожалуйста, попробуйте еще раз или напишите вручную.', 'error');
+        } finally {
+            // Скрываем загрузку
+            loader.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    }
+    
+    // Обработчик отправки формы
+    form.addEventListener('submit', (e) => {
+        e.preventDefault(); // Отменяем стандартную отправку формы
+        
+        // Собираем данные из формы
+        const formData = new FormData(form);
+        
+        const data = {
+            fullname: formData.get('fullname'),
+            facility: formData.get('facility'),
+            phone: formData.get('phone'),
+            orderDate: formData.get('orderDate'),
+            meal: 'Комплексный обед (суп + салат + горячее)',
+            quantity: 1,
+            confirmation: 'Подтверждено'
+        };
+        
+        // Валидация
+        if (!data.fullname || !data.facility || !data.phone || !data.orderDate) {
+            showAlert('Пожалуйста, заполните все обязательные поля', 'error');
+            return;
         }
         
-        // Функция показа сообщения
-        function showAlert(message, type) {
-            alertBox.textContent = message;
-            alertBox.className = `alert alert-${type}`;
-            alertBox.style.display = 'block';
-            
-            // Автоматически скрываем через 5 секунд
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 5000);
+        // Простая валидация телефона
+        const phoneRegex = /^[+]?[\d\s()-]{10,}$/;
+        if (!phoneRegex.test(data.phone)) {
+            showAlert('Пожалуйста, введите корректный номер телефона', 'error');
+            return;
         }
         
-        // Функция для отправки данных
-        async function submitOrder(data) {
-            try {
-                // Показываем загрузку
-                loader.style.display = 'block';
-                submitBtn.disabled = true;
-                
-                console.log('Отправляем данные:', data); // Для отладки
-                
-                // Отправляем POST запрос к Google Apps Script
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                showAlert('Заказ успешно отправлен! Приятного аппетита!', 'success');
-                
-                // Очищаем форму и сохраненные данные после успешной отправки
-                form.reset();
-                localStorage.removeItem(STORAGE_KEY);
-                
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showAlert('Произошла ошибка. Пожалуйста, попробуйте еще раз или напишите вручную.', 'error');
-            } finally {
-                // Скрываем загрузку
-                loader.style.display = 'none';
-                submitBtn.disabled = false;
-            }
-        }
-        
-        // Обработчик отправки формы
-        form.addEventListener('submit', (e) => {
-            e.preventDefault(); // Отменяем стандартную отправку формы
-            
-            // Собираем данные из формы
-            const formData = new FormData(form);
-            
-            const data = {
-                fullname: formData.get('fullname'),
-                facility: formData.get('facility'),
-                phone: formData.get('phone'),
-                orderDate: formData.get('orderDate'),
-                meal: 'Комплексный обед (суп + салат + горячее)',
-                quantity: 1,
-                confirmation: 'Подтверждено'
-            };
-            
-            // Валидация
-            if (!data.fullname || !data.facility || !data.phone || !data.orderDate) {
-                showAlert('Пожалуйста, заполните все обязательные поля', 'error');
-                return;
-            }
-            
-            // Простая валидация телефона
-            const phoneRegex = /^[+]?[\d\s()-]{10,}$/;
-            if (!phoneRegex.test(data.phone)) {
-                showAlert('Пожалуйста, введите корректный номер телефона', 'error');
-                return;
-            }
-            
-            // Отправляем данные
-            submitOrder(data);
-        });
-        
-        // Сохраняем данные при вводе (с debounce для производительности)
-        let saveTimeout;
-        form.addEventListener('input', () => {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(saveFormData, 500);
-        });
-        
-        // Сохраняем при изменении select
-        orderDateSelect.addEventListener('change', saveFormData);
-        
-        // Очистка сохраненных данных
-        clearDataBtn.addEventListener('click', clearSavedData);
-        
-        // Заполняем даты при загрузке
-        populateDates();
-        
-        // Загружаем сохраненные данные
-        loadFormData();
+        // Отправляем данные
+        submitOrder(data);
+    });
+    
+    // Сохраняем данные при вводе
+    form.addEventListener('input', saveFormData);
+    
+    // Сохраняем при изменении select
+    orderDateSelect.addEventListener('change', saveFormData);
+    
+    // Очистка сохраненных данных
+    clearDataBtn.addEventListener('click', clearSavedData);
+    
+    // Заполняем даты при загрузке
+    populateDates();
+    
+    // Загружаем сохраненные данные
+    loadFormData();
+    
+    // Проверяем, что localStorage работает
+    console.log('🔧 localStorage доступен:', typeof localStorage !== 'undefined');
+</script>
     </script>
 </body>
 </html>
